@@ -1,4 +1,4 @@
-from phising.data_transform.data_transformation_train import data_transform_train
+from phising.data_transform.data_transformation_train import Data_Transform_Train
 from phising.data_type_valid.data_type_valid_train import db_operation_train
 from phising.raw_data_validation.train_data_validation import raw_train_data_validation
 from utils.logger import App_Logger
@@ -18,7 +18,7 @@ class train_validation:
             raw_data_container_name=container_name
         )
 
-        self.data_transform = data_transform_train()
+        self.data_transform = Data_Transform_Train()
 
         self.db_operation = db_operation_train()
 

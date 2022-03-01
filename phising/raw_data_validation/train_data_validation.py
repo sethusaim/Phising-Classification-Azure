@@ -2,7 +2,7 @@ import re
 
 from utils.logger import App_Logger
 from utils.read_params import read_params
-from phising.container_operations.Blob_Operation import Blob_Operation
+from phising.blob_storage_operations.blob_operations import Blob_Operation
 
 
 class raw_train_data_validation:
@@ -231,7 +231,9 @@ class raw_train_data_validation:
         )
 
         try:
-            self.create_dirs_for_good_bad_data(collection_name=self.train_name_valid_log)
+            self.create_dirs_for_good_bad_data(
+                collection_name=self.train_name_valid_log
+            )
 
             onlyfiles = self.blob.get_files(
                 container=self.raw_data_container_name,

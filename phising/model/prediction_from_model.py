@@ -2,7 +2,7 @@ import pandas as pd
 from botocore.exceptions import ClientError
 from phising.data_ingestion.data_loader_prediction import data_getter_pred
 from phising.data_preprocessing.preprocessing import preprocessor
-from phising.container_operations.Blob_Operation import Blob_Operation
+from phising.blob_storage_operations.blob_operations import Blob_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
@@ -220,7 +220,9 @@ class prediction:
                     collection_name=self.pred_log,
                 )
 
-            self.log_writer.log(collection_name=self.pred_log, log_info=f"End of Prediction")
+            self.log_writer.log(
+                collection_name=self.pred_log, log_info=f"End of Prediction"
+            )
 
             return (
                 self.input_files_container,

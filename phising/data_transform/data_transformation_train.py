@@ -1,9 +1,9 @@
-from phising.container_operations.Blob_Operation import Blob_Operation
+from phising.blob_storage_operations.blob_operations import Blob_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class data_transform_train:
+class Data_Transform_Train:
     """
     Description :  This class shall be used for transforming the training batch data before loading it in Database!!.
 

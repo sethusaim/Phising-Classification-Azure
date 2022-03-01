@@ -2,7 +2,7 @@ import re
 
 from utils.logger import App_Logger
 from utils.read_params import read_params
-from phising.container_operations.Blob_Operation import Blob_Operation
+from phising.blob_storage_operations.blob_operations import Blob_Operation
 
 
 class raw_pred_data_validation:

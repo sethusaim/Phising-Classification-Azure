@@ -3,7 +3,7 @@ from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class data_transform_pred:
+class Data_Transform_Pred:
     """
     Description :  This class shall be used for transforming the prediction batch data before loading it in Database!!.
 
