@@ -9,7 +9,7 @@ class load_prod_model:
     Description :   This class shall be used for loading the production model
     Written by  :   iNeuron Intelligence
     Version     :   1.2
-    Revisions   :   Moved to setup to cloud 
+    Revisions   :   Moved to setup to cloud
     """
 
     def __init__(self, num_clusters):
@@ -37,12 +37,12 @@ class load_prod_model:
 
     def create_folders_for_prod_and_stag(self, bucket_name, table_name):
         """
-            Method Name :   create_folders_for_prod_and_stag
-            Description :   This method is used for creating production and staging folder in s3 bucket
+        Method Name :   create_folders_for_prod_and_stag
+        Description :   This method is used for creating production and staging folder in s3 bucket
 
-            Version     :   1.2
-            Revisions   :   moved setup to cloud
-            """
+        Version     :   1.2
+        Revisions   :   moved setup to cloud
+        """
         method_name = self.create_folders_for_prod_and_stag.__name__
 
         self.log_writer.start_log(
@@ -129,21 +129,21 @@ class load_prod_model:
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message="Created cols for all registered model",
+                log_info="Created cols for all registered model",
             )
 
             runs_cols = runs[cols].max().sort_values(ascending=False)
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message="Sorted the runs cols in descending order",
+                log_info="Sorted the runs cols in descending order",
             )
 
             metrics_dict = runs_cols.to_dict()
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message="Converted runs cols to dict",
+                log_info="Converted runs cols to dict",
             )
 
             """ 
@@ -184,7 +184,7 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message=f"Got top model names based on the metrics of clusters",
+                log_info=f"Got top model names based on the metrics of clusters",
             )
 
             ## best_metrics will store the value of metrics, but we want the names of the models,
@@ -198,7 +198,7 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message=f"Got the top model names",
+                log_info=f"Got the top model names",
             )
 
             results = self.mlflow_op.search_mlflow_models(order="DESC")
@@ -239,7 +239,7 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
 
             self.log_writer.log(
                 table_name=self.load_prod_model_log,
-                log_message="Transitioning of models based on scores successfully done",
+                log_info="Transitioning of models based on scores successfully done",
             )
 
             self.log_writer.start_log(

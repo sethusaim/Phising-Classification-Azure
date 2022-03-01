@@ -59,7 +59,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Got {exp_name} experiment from mlflow",
+                log_info=f"Got {exp_name} experiment from mlflow",
             )
 
             self.log_writer.start_log(
@@ -101,7 +101,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Completed searchiing for runs in mlflow with experiment ids as {exp_id}",
+                log_info=f"Completed searchiing for runs in mlflow with experiment ids as {exp_id}",
             )
 
             self.log_writer.start_log(
@@ -143,7 +143,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Set mlflow experiment with name as {experiment_name}",
+                log_info=f"Set mlflow experiment with name as {experiment_name}",
             )
 
             self.log_writer.start_log(
@@ -183,7 +183,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Got mlflow client with tracking uri",
+                log_info=f"Got mlflow client with tracking uri",
             )
 
             self.log_writer.start_log(
@@ -224,7 +224,7 @@ class mlflow_operations:
             remote_server_uri = os.environ["MLFLOW_TRACKING_URI"]
 
             self.log_writer.log(
-                table_name=self.table_name, log_message="Got mlflow tracking uri"
+                table_name=self.table_name, log_info="Got mlflow tracking uri"
             )
 
             self.log_writer.start_log(
@@ -268,7 +268,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Set mlflow tracking uri to {server_uri}",
+                log_info=f"Set mlflow tracking uri to {server_uri}",
             )
 
             self.log_writer.start_log(
@@ -312,7 +312,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message="Got registered model from mlflow",
+                log_info="Got registered model from mlflow",
             )
 
             self.log_writer.start_log(
@@ -358,7 +358,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Got registered models in mlflow in {order} order",
+                log_info=f"Got registered models in mlflow in {order} order",
             )
 
             self.log_writer.start_log(
@@ -404,7 +404,7 @@ class mlflow_operations:
             )
 
             self.log_writer.log(
-                table_name=self.table_name, log_message=f"Logged {model_name} in mlflow"
+                table_name=self.table_name, log_info=f"Logged {model_name} in mlflow"
             )
 
             self.log_writer.start_log(
@@ -446,7 +446,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"{model_score_name} logged in mlflow",
+                log_info=f"{model_score_name} logged in mlflow",
             )
 
             self.log_writer.start_log(
@@ -488,7 +488,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"{model_param_name} logged in mlflow",
+                log_info=f"{model_param_name} logged in mlflow",
             )
 
             self.log_writer.start_log(
@@ -534,7 +534,7 @@ class mlflow_operations:
 
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"Got the model name as {model_name}",
+                    log_info=f"Got the model name as {model_name}",
                 )
 
                 model_params_list = list(
@@ -543,12 +543,15 @@ class mlflow_operations:
 
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"Created a list of params based on {model_param_name}",
+                    log_info=f"Created a list of params based on {model_param_name}",
                 )
 
                 for param in model_params_list:
                     self.log_param(
-                        idx=idx, model=model, model_name=model_name, param=param,
+                        idx=idx,
+                        model=model,
+                        model_name=model_name,
+                        param=param,
                     )
 
                 self.log_model(model=model, model_name=model_name)
@@ -595,7 +598,7 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message=f"Got {current_version} as the current model version",
+                log_info=f"Got {current_version} as the current model version",
             )
 
             client = self.get_mlflow_client(server_uri=remote_server_uri)
@@ -610,13 +613,13 @@ class mlflow_operations:
 
             self.log_writer.log(
                 table_name=self.table_name,
-                log_message="Created trained,stag and prod model files",
+                log_info="Created trained,stag and prod model files",
             )
 
             if stage == "Production":
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"{stage} is selected for transition",
+                    log_info=f"{stage} is selected for transition",
                 )
 
                 client.transition_model_version_stage(
@@ -625,7 +628,7 @@ class mlflow_operations:
 
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"Transitioned {model_name} to {stage} in mlflow",
+                    log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
                 self.s3.copy_data(
@@ -639,7 +642,7 @@ class mlflow_operations:
             elif stage == "Staging":
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"{stage} is selected for transition",
+                    log_info=f"{stage} is selected for transition",
                 )
 
                 client.transition_model_version_stage(
@@ -648,7 +651,7 @@ class mlflow_operations:
 
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message=f"Transitioned {model_name} to {stage} in mlflow",
+                    log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
                 self.s3.copy_data(
@@ -662,7 +665,7 @@ class mlflow_operations:
             else:
                 self.log_writer.log(
                     table_name=self.table_name,
-                    log_message="Please select stage for model transition",
+                    log_info="Please select stage for model transition",
                 )
 
             self.log_writer.start_log(

@@ -62,7 +62,7 @@ class prediction:
 
             self.log_writer.log(
                 table_name=table_name,
-                log_message=f"Found existing prediction batch file. Deleting it.",
+                log_info=f"Found existing prediction batch file. Deleting it.",
             )
 
             self.s3.delete_file(
@@ -126,7 +126,7 @@ class prediction:
 
             self.log_writer.log(
                 table_name=table_name,
-                log_message=f"Got {model_name} from {self.prod_model_dir} folder in {bucket_name} bucket",
+                log_info=f"Got {model_name} from {self.prod_model_dir} folder in {bucket_name} bucket",
             )
 
             self.log_writer.start_log(
@@ -218,9 +218,7 @@ class prediction:
                     table_name=self.pred_log,
                 )
 
-            self.log_writer.log(
-                table_name=self.pred_log, log_message=f"End of Prediction"
-            )
+            self.log_writer.log(table_name=self.pred_log, log_info=f"End of Prediction")
 
             return (
                 self.input_files_bucket,

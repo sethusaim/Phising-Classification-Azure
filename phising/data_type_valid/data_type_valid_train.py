@@ -78,7 +78,7 @@ class db_operation_train:
 
                 self.log_writer.log(
                     table_name=self.train_db_insert_log,
-                    log_message="Inserted dataframe as collection record in mongodb",
+                    log_info="Inserted dataframe as collection record in mongodb",
                 )
 
             self.log_writer.start_log(

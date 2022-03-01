@@ -73,12 +73,12 @@ class pred_validation:
 
             self.log_writer.log(
                 table_name=self.pred_main_log,
-                log_message="Raw Data Validation Completed !!",
+                log_info="Raw Data Validation Completed !!",
             )
 
             self.log_writer.log(
                 table_name=self.pred_main_log,
-                log_message="Starting Data Transformation",
+                log_info="Starting Data Transformation",
             )
 
             self.data_transform.rename_target_column()
@@ -87,7 +87,7 @@ class pred_validation:
 
             self.log_writer.log(
                 table_name=self.pred_main_log,
-                log_message="Data Transformation completed !!",
+                log_info="Data Transformation completed !!",
             )
 
             self.db_operation.insert_good_data_as_record(
@@ -97,7 +97,7 @@ class pred_validation:
 
             self.log_writer.log(
                 table_name=self.pred_main_log,
-                log_message="Data type validation Operation completed !!",
+                log_info="Data type validation Operation completed !!",
             )
 
             self.db_operation.export_collection_to_csv(
