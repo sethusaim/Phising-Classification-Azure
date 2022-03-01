@@ -1,10 +1,10 @@
-from phising.mongo_db_operations.mongo_operations import mongodb_operation
 from phising.blob_storage_operations.blob_operations import Blob_Operation
+from phising.mongo_db_operations.mongo_operations import MongoDB_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class db_operation_pred:
+class DB_Operation_Pred:
     """
     Description :    This class shall be used for handling all the db operations
 
@@ -17,15 +17,15 @@ class db_operation_pred:
 
         self.class_name = self.__class__.__name__
 
-        self.pred_data_container = self.config["container"][
-            "phising_pred_data_container"
-        ]
+        self.db_name = self.config["db_log"]["train"]
+
+        self.pred_data_container = self.config["container"]["phising_pred_data"]
 
         self.pred_export_csv_file = self.config["export_csv_file"]["pred"]
 
         self.good_data_pred_dir = self.config["data"]["pred"]["good_data_dir"]
 
-        self.input_files_container = self.config["container"]["input_files_container"]
+        self.input_files_container = self.config["container"]["input_files"]
 
         self.pred_db_insert_log = self.config["pred_db_log"]["db_insert"]
 
@@ -33,7 +33,7 @@ class db_operation_pred:
 
         self.blob = Blob_Operation()
 
-        self.db_op = mongodb_operation()
+        self.db_op = MongoDB_Operation()
 
         self.log_writer = App_Logger()
 
@@ -51,14 +51,15 @@ class db_operation_pred:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.pred_db_insert_log,
         )
 
         try:
-            lst = self.blob.read_csv(
-                container=self.pred_data_container,
-                file_name=self.good_data_pred_dir,
-                folder=True,
+            lst = self.blob.read_csv_from_folder(
+                folder_name=self.good_data_pred_dir,
+                container_name=self.pred_data_container,
+                db_name=self.db_name,
                 collection_name=self.pred_db_insert_log,
             )
 
@@ -72,13 +73,13 @@ class db_operation_pred:
                         data_frame=df,
                         db_name=good_data_db_name,
                         collection_name=good_data_collection_name,
-                        collection_name=self.pred_db_insert_log,
                     )
 
                 else:
                     pass
 
                 self.log_writer.log(
+                    db_name=self.db_name,
                     collection_name=self.pred_db_insert_log,
                     log_info="Inserted dataframe as collection record in mongodb",
                 )
@@ -87,6 +88,7 @@ class db_operation_pred:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_db_insert_log,
             )
 
@@ -95,6 +97,7 @@ class db_operation_pred:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_db_insert_log,
             )
 
@@ -112,6 +115,7 @@ class db_operation_pred:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.pred_export_csv_log,
         )
 
@@ -119,14 +123,14 @@ class db_operation_pred:
             df = self.db_op.get_collection_as_dataframe(
                 db_name=good_data_db_name,
                 collection_name=good_data_collection_name,
-                collection_name=self.pred_export_csv_log,
             )
 
             self.blob.upload_df_as_csv(
-                data_frame=df,
-                file_name=self.pred_export_csv_file,
-                container=self.input_files_container,
-                dest_file_name=self.pred_export_csv_file,
+                dataframe=df,
+                local_file_name=self.pred_export_csv_file,
+                container_file_name=self.pred_export_csv_file,
+                container_name=self.input_files_container,
+                db_name=self.db_name,
                 collection_name=self.pred_export_csv_log,
             )
 
@@ -134,6 +138,7 @@ class db_operation_pred:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_export_csv_log,
             )
 
@@ -142,5 +147,6 @@ class db_operation_pred:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_export_csv_log,
             )
