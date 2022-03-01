@@ -1,11 +1,11 @@
 from phising.data_transform.data_transformation_pred import Data_Transform_Pred
 from phising.data_type_valid.data_type_valid_pred import DB_Operation_Pred
-from phising.raw_data_validation.pred_data_validation import raw_pred_data_validation
+from phising.raw_data_validation.pred_data_validation import Raw_Pred_Data_Validation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class pred_validation:
+class Pred_Validation:
     """
     Description :   This class is used for validating all the prediction batch files
 
@@ -14,7 +14,7 @@ class pred_validation:
     """
 
     def __init__(self, container_name):
-        self.raw_data = raw_pred_data_validation(raw_data_container_name=container_name)
+        self.raw_data = Raw_Pred_Data_Validation(raw_data_container_name=container_name)
 
         self.data_transform = Data_Transform_Pred()
 
@@ -24,15 +24,13 @@ class pred_validation:
 
         self.class_name = self.__class__.__name__
 
-        self.db_name = self.config["db_log"]["db_pred_log"]
+        self.db_name = self.config["db_log"]["pred"]
 
         self.pred_main_log = self.config["pred_db_log"]["pred_main"]
 
-        self.good_data_db_name = self.config["mongodb"]["phising_data_db_name"]
+        self.good_data_db_name = self.config["mongodb"]["train"]["db"]
 
-        self.good_data_collection_name = self.config["mongodb"][
-            "phising_pred_data_collection"
-        ]
+        self.good_data_collection_name = self.config["mongodb"]["train"]["collection"]
 
         self.log_writer = App_Logger()
 
@@ -51,6 +49,7 @@ class pred_validation:
                 key="start",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
             )
 
@@ -72,20 +71,21 @@ class pred_validation:
             self.raw_data.validate_missing_values_in_col()
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
                 log_info="Raw Data Validation Completed !!",
             )
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
                 log_info="Starting Data Transformation",
             )
 
-            self.data_transform.rename_target_column()
-
-            self.data_transform.replace_missing_with_null()
+            self.data_transform.add_quotes_to_string()
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
                 log_info="Data Transformation completed !!",
             )
@@ -96,6 +96,7 @@ class pred_validation:
             )
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
                 log_info="Data type validation Operation completed !!",
             )
@@ -109,6 +110,7 @@ class pred_validation:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
             )
 
@@ -117,5 +119,6 @@ class pred_validation:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_main_log,
             )
