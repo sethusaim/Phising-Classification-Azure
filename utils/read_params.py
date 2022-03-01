@@ -11,8 +11,6 @@ def read_params(config_path="params.yaml"):
     """
     method_name = read_params.__name__
 
-    local_file_name = __file__
-
     try:
         with open(config_path) as f:
             config = yaml.safe_load(f)
@@ -21,5 +19,5 @@ def read_params(config_path="params.yaml"):
 
     except Exception as e:
         raise Exception(
-            f"Exception occured in {local_file_name}, Method : {method_name}, Error : {str(e)}"
+            f"Exception occured in {__file__}, Method : {method_name}, Error : {str(e)}"
         )
