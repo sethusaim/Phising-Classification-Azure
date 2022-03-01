@@ -4,11 +4,11 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from phising.blob_storage_operations.blob_operations import Blob_Operation
 from utils.logger import App_Logger
-from utils.model_utils import get_model_name
+from utils.model_utils import Model_Utils
 from utils.read_params import read_params
 
 
-class mlflow_operations:
+class MLFlow_Operations:
     """
     Description :    This class shall be used for handling all the mlflow operations
 
@@ -24,6 +24,8 @@ class mlflow_operations:
         self.log_writer = App_Logger()
 
         self.blob = Blob_Operation()
+
+        self.model_utils = Model_Utils()
 
         self.collection_name = collection_name
 
@@ -525,7 +527,7 @@ class mlflow_operations:
                 collection_name=self.collection_name,
             )
 
-            base_model_name = get_model_name(
+            base_model_name = self.model_utils.get_model_name(
                 model=model, collection_name=self.collection_name
             )
 

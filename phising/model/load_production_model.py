@@ -1,4 +1,4 @@
-from phising.mlflow_utils.mlflow_operations import mlflow_operations
+from phising.mlflow_utils.MLFlow_Operations import MLFlow_Operations
 from phising.blob_storage_operations.blob_operations import Blob_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
@@ -33,7 +33,7 @@ class load_prod_model:
 
         self.blob = Blob_Operation()
 
-        self.mlflow_op = mlflow_operations(collection_name=self.load_prod_model_log)
+        self.mlflow_op = MLFlow_Operations(collection_name=self.load_prod_model_log)
 
     def create_folders_for_prod_and_stag(self, container_name, collection_name):
         """

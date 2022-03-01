@@ -1,8 +1,8 @@
 import mlflow
 from phising.data_ingestion.data_loader_train import data_getter_train
 from phising.data_preprocessing.clustering import kmeans_clustering
-from phising.data_preprocessing.preprocessing import preprocessor
-from phising.mlflow_utils.mlflow_operations import mlflow_operations
+from phising.data_preprocessing.preprocessing import Preprocessor
+from phising.mlflow_utils.MLFlow_Operations import MLFlow_Operations
 from phising.model_finder.tuner import model_finder
 from phising.blob_storage_operations.blob_operations import Blob_Operation
 from sklearn.model_selection import train_test_split
@@ -44,7 +44,7 @@ class train_model:
 
         self.class_name = self.__class__.__name__
 
-        self.mlflow_op = mlflow_operations(collection_name=self.model_train_log)
+        self.mlflow_op = MLFlow_Operations(collection_name=self.model_train_log)
 
         self.data_getter_train_obj = data_getter_train(
             collection_name=self.model_train_log
