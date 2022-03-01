@@ -14,9 +14,7 @@ class Data_Transform_Train:
     def __init__(self):
         self.config = read_params()
 
-        self.train_data_container = self.config["container"][
-            "phising_train_data_container"
-        ]
+        self.train_data_container = self.config["container"]["phising_train_data"]
 
         self.blob = Blob_Operation()
 
@@ -44,14 +42,15 @@ class Data_Transform_Train:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.train_data_transform_log,
         )
 
         try:
-            lst = self.blob.read_csv(
-                container=self.train_data_container,
-                file_name=self.good_train_data_dir,
-                folder=True,
+            lst = self.blob.read_csv_from_folder(
+                folder_name=self.good_train_data_dir,
+                container_name=self.train_data_container,
+                db_name=self.db_name,
                 collection_name=self.train_data_transform_log,
             )
 
@@ -70,15 +69,17 @@ class Data_Transform_Train:
                             df[column] = df[column].replace("?", "'?'")
 
                     self.log_writer.log(
+                        db_name=self.db_name,
                         collection_name=self.train_data_transform_log,
                         log_info=f"Quotes added for the file {file}",
                     )
 
                     self.blob.upload_df_as_csv(
-                        data_frame=df,
-                        file_name=abs_f,
-                        container=self.train_data_container,
-                        dest_file_name=file,
+                        dataframe=df,
+                        local_file_name=abs_f,
+                        container_file_name=file,
+                        container_name=self.train_data_container,
+                        db_name=self.db_name,
                         collection_name=self.train_data_transform_log,
                     )
 
@@ -89,6 +90,7 @@ class Data_Transform_Train:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.train_data_transform_log,
             )
 
@@ -97,5 +99,6 @@ class Data_Transform_Train:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.train_data_transform_log,
             )
