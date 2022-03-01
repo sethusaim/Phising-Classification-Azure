@@ -1,10 +1,10 @@
-from phising.mlflow_utils.MLFlow_Operations import MLFlow_Operations
 from phising.blob_storage_operations.blob_operations import Blob_Operation
+from phising.mlflow_utils.mlflow_operations import MLFlow_Operations
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class load_prod_model:
+class Load_Prod_Model:
     """
     Description :   This class shall be used for loading the production model
     Written by  :   iNeuron Intelligence
@@ -21,7 +21,9 @@ class load_prod_model:
 
         self.num_clusters = num_clusters
 
-        self.model_container = self.config["container"]["phising_model_container"]
+        self.db_name = self.config["db_log"]["train_db_log"]
+
+        self.model_container = self.config["container"]["model"]
 
         self.load_prod_model_log = self.config["train_db_log"]["load_prod_model"]
 
@@ -33,52 +35,9 @@ class load_prod_model:
 
         self.blob = Blob_Operation()
 
-        self.mlflow_op = MLFlow_Operations(collection_name=self.load_prod_model_log)
-
-    def create_folders_for_prod_and_stag(self, container_name, collection_name):
-        """
-        Method Name :   create_folders_for_prod_and_stag
-        Description :   This method is used for creating production and staging folder in blob container
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
-        """
-        method_name = self.create_folders_for_prod_and_stag.__name__
-
-        self.log_writer.start_log(
-            key="exit",
-            class_name=self.class_name,
-            method_name=method_name,
-            collection_name=collection_name,
+        self.mlflow_op = MLFlow_Operations(
+            db_name=self.db_name, collection_name=self.load_prod_model_log
         )
-
-        try:
-            self.blob.create_folder(
-                container_name=container_name,
-                folder_name=self.prod_model_dir,
-                collection_name=collection_name,
-            )
-
-            self.blob.create_folder(
-                container_name=container_name,
-                folder_name=self.stag_model_dir,
-                collection_name=collection_name,
-            )
-
-            self.log_writer.start_log(
-                key="exit",
-                class_name=self.class_name,
-                method_name=method_name,
-                collection_name=collection_name,
-            )
-
-        except Exception as e:
-            self.log_writer.exception_log(
-                error=e,
-                class_name=self.class_name,
-                method_name=method_name,
-                collection_name=collection_name,
-            )
 
     def load_production_model(self):
         """
@@ -95,15 +54,11 @@ class load_prod_model:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.load_prod_model_log,
         )
 
         try:
-            self.create_folders_for_prod_and_stag(
-                container_name=self.model_container,
-                collection_name=self.load_prod_model_log,
-            )
-
             self.mlflow_op.set_mlflow_tracking_uri()
 
             exp = self.mlflow_op.get_experiment_from_mlflow(exp_name=self.exp_name)
@@ -129,6 +84,7 @@ class load_prod_model:
             ]
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
                 log_info="Created cols for all registered model",
             )
@@ -136,6 +92,7 @@ class load_prod_model:
             runs_cols = runs[cols].max().sort_values(ascending=False)
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
                 log_info="Sorted the runs cols in descending order",
             )
@@ -143,6 +100,7 @@ class load_prod_model:
             metrics_dict = runs_cols.to_dict()
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
                 log_info="Converted runs cols to dict",
             )
@@ -184,8 +142,9 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
             ]
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
-                log_info=f"Got top model names based on the metrics of clusters",
+                log_info="Got top model names based on the metrics of clusters",
             )
 
             ## best_metrics will store the value of metrics, but we want the names of the models,
@@ -198,8 +157,9 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
             top_mn_lst = [mn.split(".")[1].split("-")[0] for mn in best_metrics_names]
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
-                log_info=f"Got the top model names",
+                log_info="Got the top model names",
             )
 
             results = self.mlflow_op.search_mlflow_models(order="DESC")
@@ -216,7 +176,8 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
                             model_version=mv.version,
                             stage="Production",
                             model_name=mv.name,
-                            container=self.model_container,
+                            from_container_name=self.model_container,
+                            to_container_name=self.model_container,
                         )
 
                     ## In the registered models, even kmeans model is present, so during prediction,
@@ -227,7 +188,8 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
                             model_version=mv.version,
                             stage="Production",
                             model_name=mv.name,
-                            container=self.model_container,
+                            from_container_name=self.model_container,
+                            to_container_name=self.model_container,
                         )
 
                     else:
@@ -235,10 +197,12 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
                             model_version=mv.version,
                             stage="Staging",
                             model_name=mv.name,
-                            container=self.model_container,
+                            from_container_name=self.model_container,
+                            to_container_name=self.model_container,
                         )
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
                 log_info="Transitioning of models based on scores successfully done",
             )
@@ -247,6 +211,7 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
             )
 
@@ -255,5 +220,6 @@ run_number  metrics.XGBoost0-best_score metrics.RandomForest1-best_score metrics
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.load_prod_model_log,
             )

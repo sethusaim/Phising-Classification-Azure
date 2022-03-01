@@ -1,13 +1,12 @@
 import pandas as pd
-from botocore.exceptions import ClientError
-from phising.data_ingestion.data_loader_prediction import data_getter_pred
-from phising.data_preprocessing.preprocessing import Preprocessor
 from phising.blob_storage_operations.blob_operations import Blob_Operation
+from phising.data_ingestion.data_loader_prediction import Data_Getter_Pred
+from phising.data_preprocessing.preprocessing import Preprocessor
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class prediction:
+class Prediction:
     """
     Description :   This class shall be used for loading the production model
 
@@ -17,6 +16,8 @@ class prediction:
 
     def __init__(self):
         self.config = read_params()
+
+        self.db_name = self.config["db_log"]["pred"]
 
         self.pred_log = self.config["pred_db_log"]["pred_main"]
 
@@ -32,13 +33,13 @@ class prediction:
 
         self.blob = Blob_Operation()
 
-        self.data_getter_pred = data_getter_pred(collection_name=self.pred_log)
+        self.data_getter_pred = Data_Getter_Pred(collection_name=self.pred_log)
 
-        self.Preprocessor = Preprocessor(collection_name=self.pred_log)
+        self.preprocessor = Preprocessor(collection_name=self.pred_log)
 
         self.class_name = self.__class__.__name__
 
-    def delete_pred_file(self, collection_name):
+    def delete_pred_file(self):
         """
         Method Name :   delete_pred_file
         Description :   This method is used for deleting the existing prediction batch file
@@ -52,45 +53,56 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            collection_name=collection_name,
+            db_name=self.db_name,
+            collection_name=self.pred_log,
         )
 
         try:
-            self.blob.load_object(
-                container_name=self.input_files_container, obj=self.pred_output_file
-            )
-
-            self.log_writer.log(
-                collection_name=collection_name,
-                log_info=f"Found existing prediction batch file. Deleting it.",
-            )
-
-            self.blob.delete_file(
+            f = self.blob.load_file(
+                file_name=self.pred_output_file,
                 container_name=self.input_files_container,
-                file=self.pred_output_file,
-                collection_name=collection_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
             )
+
+            if f is True:
+                self.log_writer.log(
+                    db_name=self.db_name,
+                    collection_name=self.pred_log,
+                    log_info="Found existing prediction batch file. Deleting it.",
+                )
+
+                self.blob.delete_file(
+                    file_name=self.pred_output_file,
+                    container_name=self.input_files_container,
+                    db_name=self.db_name,
+                    collection_name=self.pred_log,
+                )
+
+            else:
+                self.log_writer.log(
+                    db_name=self.db_name,
+                    collection_name=self.pred_log,
+                    log_info="Previous prediction file is not found, not deleting it",
+                )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                collection_name=collection_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
+            )
+        except Exception as e:
+            self.log_writer.exception_log(
+                error=e,
+                class_name=self.class_name,
+                method_name=method_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
             )
 
-        except ClientError as e:
-            if e.response["Error"]["Code"] == "404":
-                pass
-
-            else:
-                self.log_writer.exception_log(
-                    error=e,
-                    class_name=self.class_name,
-                    method_name=method_name,
-                    collection_name=collection_name,
-                )
-
-    def find_correct_model_file(self, cluster_number, container_name, collection_name):
+    def find_correct_model_file(self, cluster_number, container_name):
         """
         Method Name :   find_correct_model_file
         Description :   This method is used for finding the correct model file during prediction
@@ -104,14 +116,16 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            collection_name=collection_name,
+            db_name=self.db_name,
+            collection_name=self.pred_log,
         )
 
         try:
-            list_of_files = self.blob.get_files(
-                container=container_name,
+            list_of_files = self.blob.get_files_from_folder(
                 folder_name=self.prod_model_dir,
-                collection_name=collection_name,
+                container_name=container_name,
+                db_name=self.db_name,
+                collection_name=container_name,
             )
 
             for file in list_of_files:
@@ -125,7 +139,8 @@ class prediction:
             model_name = model_name.split(".")[0]
 
             self.log_writer.log(
-                collection_name=collection_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
                 log_info=f"Got {model_name} from {self.prod_model_dir} folder in {container_name} container",
             )
 
@@ -133,7 +148,8 @@ class prediction:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                collection_name=collection_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
             )
 
             return model_name
@@ -143,7 +159,8 @@ class prediction:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                collection_name=collection_name,
+                db_name=self.db_name,
+                collection_name=self.pred_log,
             )
 
     def predict_from_model(self):
@@ -160,26 +177,29 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.pred_log,
         )
 
         try:
-            self.delete_pred_file(collection_name=self.pred_log)
+            self.delete_pred_file()
 
             data = self.data_getter_pred.get_data()
 
-            is_null_present = self.Preprocessor.is_null_present(data)
+            is_null_present = self.preprocessor.is_null_present(data)
 
             if is_null_present:
-                data = self.Preprocessor.impute_missing_values(data)
+                data = self.preprocessor.impute_missing_values(data)
 
-            cols_to_drop = self.Preprocessor.get_columns_with_zero_std_deviation(data)
+            cols_to_drop = self.preprocessor.get_columns_with_zero_std_deviation(data)
 
-            data = self.Preprocessor.remove_columns(data, cols_to_drop)
+            data = self.preprocessor.remove_columns(data, cols_to_drop)
 
             kmeans = self.blob.load_model(
-                container=self.model_container,
                 model_name="KMeans",
+                container_name=self.model_container,
+                model_dir=self.prod_model_dir,
+                db_name=self.db_name,
                 collection_name=self.pred_log,
             )
 
@@ -201,27 +221,35 @@ class prediction:
                 crt_model_name = self.find_correct_model_file(
                     cluster_number=i,
                     container_name=self.model_container,
-                    collection_name=self.pred_log,
                 )
 
-                model = self.blob.load_model(model_name=crt_model_name)
+                model = self.blob.load_model(
+                    model_name=crt_model_name,
+                    container_name=self.model_container,
+                    model_dir=self.prod_model_dir,
+                    db_name=self.db_name,
+                    collection_name=self.pred_log,
+                )
 
                 result = list(model.predict(cluster_data))
 
                 result = pd.DataFrame(
-                    list(zip(phising_names, result)), columns=["phising", "Prediction"]
+                    list(zip(phising_names, result)), columns=["phising", "prediction"]
                 )
 
                 self.blob.upload_df_as_csv(
-                    data_frame=result,
-                    file_name=self.pred_output_file,
-                    container=self.input_files_container,
-                    dest_file_name=self.pred_output_file,
+                    dataframe=result,
+                    local_file_name=self.pred_output_file,
+                    container_file_name=self.pred_output_file,
+                    container_name=self.input_files_container,
+                    db_name=self.db_name,
                     collection_name=self.pred_log,
                 )
 
             self.log_writer.log(
-                collection_name=self.pred_log, log_info=f"End of Prediction"
+                db_name=self.db_name,
+                collection_name=self.pred_log,
+                log_info=f"End of Prediction",
             )
 
             return (
@@ -235,5 +263,6 @@ class prediction:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.pred_log,
             )

@@ -1,16 +1,16 @@
 import mlflow
-from phising.data_ingestion.data_loader_train import data_getter_train
-from phising.data_preprocessing.clustering import kmeans_clustering
-from phising.data_preprocessing.preprocessing import Preprocessor
-from phising.mlflow_utils.MLFlow_Operations import MLFlow_Operations
-from phising.model_finder.tuner import model_finder
 from phising.blob_storage_operations.blob_operations import Blob_Operation
+from phising.data_ingestion.data_loader_train import Data_Getter_Train
+from phising.data_preprocessing.clustering import KMeans_Clustering
+from phising.data_preprocessing.preprocessing import Preprocessor
+from phising.mlflow_utils.mlflow_operations import MLFlow_Operations
+from phising.model_finder.tuner import Model_Finder
 from sklearn.model_selection import train_test_split
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class train_model:
+class Train_Model:
     """
     Description :   This method is used for getting the data and applying
                     some preprocessing steps and then train the models and register them in mlflow
@@ -24,9 +24,11 @@ class train_model:
 
         self.config = read_params()
 
-        self.model_train_log = self.config["train_db_log"]["model_training"]
+        self.db_name = self.config["db_log"]["train"]
 
-        self.model_container = self.config["container"]["phising_model_container"]
+        self.model_train_log = self.config["train_db_log"]["train_model"]
+
+        self.model_container = self.config["container"]["phising_model"]
 
         self.test_size = self.config["base"]["test_size"]
 
@@ -46,15 +48,15 @@ class train_model:
 
         self.mlflow_op = MLFlow_Operations(collection_name=self.model_train_log)
 
-        self.data_getter_train_obj = data_getter_train(
+        self.data_getter_train_obj = Data_Getter_Train(
             collection_name=self.model_train_log
         )
 
-        self.preprocessor_obj = preprocessor(collection_name=self.model_train_log)
+        self.preprocessor_obj = Preprocessor(collection_name=self.model_train_log)
 
-        self.kmeans_obj = kmeans_clustering(collection_name=self.model_train_log)
+        self.kmeans_obj = KMeans_Clustering(collection_name=self.model_train_log)
 
-        self.model_finder_obj = model_finder(collection_name=self.model_train_log)
+        self.model_finder_obj = Model_Finder(collection_name=self.model_train_log)
 
         self.blob = Blob_Operation()
 
@@ -73,6 +75,7 @@ class train_model:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
+            db_name=self.db_name,
             collection_name=self.model_train_log,
         )
 
@@ -112,6 +115,7 @@ class train_model:
                 cluster_label = cluster_data["Labels"]
 
                 self.log_writer.log(
+                    db_name=self.db_name,
                     collection_name=self.model_train_log,
                     log_info="Seprated cluster features and cluster label for the cluster data",
                 )
@@ -124,6 +128,7 @@ class train_model:
                 )
 
                 self.log_writer.log(
+                    db_name=self.db_name,
                     collection_name=self.model_train_log,
                     log_info=f"Performed train test split with test size as {self.test_size} and random state as {self.random_state}",
                 )
@@ -138,19 +143,21 @@ class train_model:
                 )
 
                 self.blob.save_model(
-                    idx=i,
                     model=xgb_model,
-                    model_container=self.model_container,
+                    idx=i,
+                    model_dir=self.train_model_dir,
+                    container_name=self.model_container,
+                    db_name=self.db_name,
                     collection_name=self.model_train_log,
-                    model_dir="",
                 )
 
                 self.blob.save_model(
-                    idx=i,
                     model=rf_model,
+                    idx=i,
+                    model_dir=self.train_model_dir,
                     model_container=self.model_container,
+                    db_name=self.db_name,
                     collection_name=self.model_train_log,
-                    model_dir="",
                 )
 
                 try:
@@ -186,6 +193,7 @@ class train_model:
 
                 except Exception as e:
                     self.log_writer.log(
+                        db_name=self.db_name,
                         collection_name=self.model_train_log,
                         log_info="Mlflow logging of params,metrics and models failed",
                     )
@@ -194,18 +202,29 @@ class train_model:
                         error=e,
                         class_name=self.class_name,
                         method_name=method_name,
+                        db_name=self.db_name,
                         collection_name=self.model_train_log,
                     )
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.model_train_log,
                 log_info="Successful End of Training",
+            )
+
+            self.log_writer.start_log(
+                key="exit",
+                class_name=self.class_name,
+                method_name=method_name,
+                db_name=self.db_name,
+                collection_name=self.model_train_log,
             )
 
             return number_of_clusters
 
         except Exception as e:
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.model_train_log,
                 log_info="Unsuccessful End of Training",
             )
@@ -214,5 +233,6 @@ class train_model:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
+                db_name=self.db_name,
                 collection_name=self.model_train_log,
             )
