@@ -1,27 +1,29 @@
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_storage_operations.blob_operations import Blob_Operation
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
-class data_getter_train:
+class Data_Getter_Train:
     """
     Description :   This class shall be used for obtaining the df from the source for training
     Version     :   1.2
-    Revisions   :   Moved to setup to cloud 
+    Revisions   :   Moved to setup to cloud
     """
 
-    def __init__(self, table_name):
+    def __init__(self, db_name, collection_name):
         self.config = read_params()
 
-        self.table_name = table_name
+        self.db_name = db_name
+
+        self.collection_name = collection_name
 
         self.train_csv_file = self.config["export_csv_file"]["train"]
 
-        self.input_files_bucket = self.config["s3_bucket"]["input_files_bucket"]
+        self.input_files_container = self.config["container"]["input_files"]
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
         self.class_name = self.__class__.__name__
 
@@ -41,21 +43,24 @@ class data_getter_train:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            db_name=self.db_name,
+            collection_name=self.collection_name,
         )
 
         try:
-            df = self.s3.read_csv(
-                bucket=self.input_files_bucket,
+            df = self.blob.read_csv(
                 file_name=self.train_csv_file,
-                table_name=self.table_name,
+                container_name=self.input_files_container,
+                db_name=self.db_name,
+                collection_name=self.collection_name,
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                db_name=self.db_name,
+                collection_name=self.collection_name,
             )
 
             return df
@@ -65,5 +70,6 @@ class data_getter_train:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                db_name=self.db_name,
+                collection_name=self.collection_name,
             )
