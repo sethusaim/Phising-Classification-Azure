@@ -52,8 +52,6 @@ async def trainRouteClient():
 
         table_obj.generate_log_tables(type="train")
 
-        time.sleep(5)
-
         train_val_obj = train_validation(bucket_name=raw_data_train_bucket_name)
 
         train_val_obj.training_validation()
