@@ -38,7 +38,7 @@ kmeans_cluster:
     curve     : convex
     direction : decreasing
 
-s3_bucket:
+blob_bucket:
   input_files_bucket: input-files-for-train-and-pred
   phising_model_bucket: phising-model
   phising-mlflow_bucket: phising-mlflow

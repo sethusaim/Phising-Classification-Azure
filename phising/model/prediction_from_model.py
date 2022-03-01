@@ -2,8 +2,8 @@ import pandas as pd
 from botocore.exceptions import ClientError
 from phising.data_ingestion.data_loader_prediction import data_getter_pred
 from phising.data_preprocessing.preprocessing import preprocessor
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
@@ -20,17 +20,17 @@ class prediction:
 
         self.pred_log = self.config["pred_db_log"]["pred_main"]
 
-        self.model_bucket = self.config["s3_bucket"]["phising_model_bucket"]
+        self.model_bucket = self.config["blob_bucket"]["phising_model_bucket"]
 
-        self.input_files_bucket = self.config["s3_bucket"]["inputs_files_bucket"]
+        self.input_files_bucket = self.config["blob_bucket"]["inputs_files_bucket"]
 
         self.prod_model_dir = self.config["models_dir"]["prod"]
 
         self.pred_output_file = self.config["pred_output_file"]
 
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
         self.data_getter_pred = data_getter_pred(table_name=self.pred_log)
 
@@ -56,7 +56,7 @@ class prediction:
         )
 
         try:
-            self.s3.load_object(
+            self.blob.load_object(
                 bucket_name=self.input_files_bucket, obj=self.pred_output_file
             )
 
@@ -65,7 +65,7 @@ class prediction:
                 log_info=f"Found existing prediction batch file. Deleting it.",
             )
 
-            self.s3.delete_file(
+            self.blob.delete_file(
                 bucket_name=self.input_files_bucket,
                 file=self.pred_output_file,
                 table_name=table_name,
@@ -108,7 +108,7 @@ class prediction:
         )
 
         try:
-            list_of_files = self.s3.get_files(
+            list_of_files = self.blob.get_files(
                 bucket=bucket_name,
                 folder_name=self.prod_model_dir,
                 table_name=table_name,
@@ -149,7 +149,7 @@ class prediction:
     def predict_from_model(self):
         """
         Method Name :   predict_from_model
-        Description :   This method is used for loading from prod model dir of s3 bucket and use them for prediction
+        Description :   This method is used for loading from prod model dir of blob bucket and use them for prediction
 
         Version     :   1.2
         Revisions   :   moved setup to cloud
@@ -177,7 +177,7 @@ class prediction:
 
             data = self.preprocessor.remove_columns(data, cols_to_drop)
 
-            kmeans = self.s3.load_model(
+            kmeans = self.blob.load_model(
                 bucket=self.model_bucket, model_name="KMeans", table_name=self.pred_log
             )
 
@@ -202,7 +202,7 @@ class prediction:
                     table_name=self.pred_log,
                 )
 
-                model = self.s3.load_model(model_name=crt_model_name)
+                model = self.blob.load_model(model_name=crt_model_name)
 
                 result = list(model.predict(cluster_data))
 
@@ -210,7 +210,7 @@ class prediction:
                     list(zip(phising_names, result)), columns=["phising", "Prediction"]
                 )
 
-                self.s3.upload_df_as_csv(
+                self.blob.upload_df_as_csv(
                     data_frame=result,
                     file_name=self.pred_output_file,
                     bucket=self.input_files_bucket,

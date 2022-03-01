@@ -1,5 +1,5 @@
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
@@ -14,11 +14,11 @@ class data_transform_train:
     def __init__(self):
         self.config = read_params()
 
-        self.train_data_bucket = self.config["s3_bucket"]["phising_train_data_bucket"]
+        self.train_data_bucket = self.config["blob_bucket"]["phising_train_data_bucket"]
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
         self.good_train_data_dir = self.config["data"]["train"]["good_data_dir"]
 
@@ -46,7 +46,7 @@ class data_transform_train:
         )
 
         try:
-            lst = self.s3.read_csv(
+            lst = self.blob.read_csv(
                 bucket=self.train_data_bucket,
                 file_name=self.good_train_data_dir,
                 folder=True,
@@ -72,7 +72,7 @@ class data_transform_train:
                         log_info=f"Quotes added for the file {file}",
                     )
 
-                    self.s3.upload_df_as_csv(
+                    self.blob.upload_df_as_csv(
                         data_frame=df,
                         file_name=abs_f,
                         bucket=self.train_data_bucket,

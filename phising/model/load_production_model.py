@@ -1,6 +1,6 @@
 from phising.mlflow_utils.mlflow_operations import mlflow_operations
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
@@ -13,7 +13,7 @@ class load_prod_model:
     """
 
     def __init__(self, num_clusters):
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
         self.config = read_params()
 
@@ -21,7 +21,7 @@ class load_prod_model:
 
         self.num_clusters = num_clusters
 
-        self.model_bucket = self.config["s3_bucket"]["phising_model_bucket"]
+        self.model_bucket = self.config["blob_bucket"]["phising_model_bucket"]
 
         self.load_prod_model_log = self.config["train_db_log"]["load_prod_model"]
 
@@ -31,14 +31,14 @@ class load_prod_model:
 
         self.exp_name = self.config["mlflow_config"]["experiment_name"]
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
         self.mlflow_op = mlflow_operations(table_name=self.load_prod_model_log)
 
     def create_folders_for_prod_and_stag(self, bucket_name, table_name):
         """
         Method Name :   create_folders_for_prod_and_stag
-        Description :   This method is used for creating production and staging folder in s3 bucket
+        Description :   This method is used for creating production and staging folder in blob bucket
 
         Version     :   1.2
         Revisions   :   moved setup to cloud
@@ -53,13 +53,13 @@ class load_prod_model:
         )
 
         try:
-            self.s3.create_folder(
+            self.blob.create_folder(
                 bucket_name=bucket_name,
                 folder_name=self.prod_model_dir,
                 table_name=table_name,
             )
 
-            self.s3.create_folder(
+            self.blob.create_folder(
                 bucket_name=bucket_name,
                 folder_name=self.stag_model_dir,
                 table_name=table_name,

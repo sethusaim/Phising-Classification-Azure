@@ -2,8 +2,8 @@ import os
 
 import mlflow
 from mlflow.tracking import MlflowClient
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from utils.logger import App_Logger
 from utils.model_utils import get_model_name
 from utils.read_params import read_params
 
@@ -21,9 +21,9 @@ class mlflow_operations:
 
         self.class_name = self.__class__.__name__
 
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
         self.table_name = table_name
 
@@ -576,7 +576,7 @@ class mlflow_operations:
     def transition_mlflow_model(self, model_version, stage, model_name, bucket):
         """
         Method Name :   transition_mlflow_model
-        Description :   This method transitions the models in mlflow and as well as in s3 bucket based on
+        Description :   This method transitions the models in mlflow and as well as in blob bucket based on
                         the best model for the particular cluster
 
         Version     :   1.2
@@ -631,7 +631,7 @@ class mlflow_operations:
                     log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
-                self.s3.copy_data(
+                self.blob.copy_data(
                     src_bucket=bucket,
                     src_file=trained_model_file,
                     dest_bucket=bucket,
@@ -654,7 +654,7 @@ class mlflow_operations:
                     log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
-                self.s3.copy_data(
+                self.blob.copy_data(
                     src_bucket=bucket,
                     src_file=trained_model_file,
                     dest_bucket=bucket,

@@ -4,9 +4,9 @@ from phising.data_preprocessing.clustering import kmeans_clustering
 from phising.data_preprocessing.preprocessing import preprocessor
 from phising.mlflow_utils.mlflow_operations import mlflow_operations
 from phising.model_finder.tuner import model_finder
-from phising.s3_bucket_operations.s3_operations import s3_operations
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
 from sklearn.model_selection import train_test_split
-from utils.logger import app_logger
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
@@ -20,13 +20,13 @@ class train_model:
     """
 
     def __init__(self):
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
         self.config = read_params()
 
         self.model_train_log = self.config["train_db_log"]["model_training"]
 
-        self.model_bucket = self.config["s3_bucket"]["phising_model_bucket"]
+        self.model_bucket = self.config["blob_bucket"]["phising_model_bucket"]
 
         self.test_size = self.config["base"]["test_size"]
 
@@ -54,7 +54,7 @@ class train_model:
 
         self.model_finder_obj = model_finder(table_name=self.model_train_log)
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
     def training_model(self):
         """
@@ -135,7 +135,7 @@ class train_model:
                     x_train, y_train, x_test, y_test
                 )
 
-                self.s3.save_model(
+                self.blob.save_model(
                     idx=i,
                     model=xgb_model,
                     model_bucket=self.model_bucket,
@@ -143,7 +143,7 @@ class train_model:
                     model_dir="",
                 )
 
-                self.s3.save_model(
+                self.blob.save_model(
                     idx=i,
                     model=rf_model,
                     model_bucket=self.model_bucket,

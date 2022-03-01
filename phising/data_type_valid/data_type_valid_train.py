@@ -1,6 +1,6 @@
 from phising.mongo_db_operations.mongo_operations import mongodb_operation
-from phising.s3_bucket_operations.s3_operations import s3_operations
-from utils.logger import app_logger
+from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from utils.logger import App_Logger
 from utils.read_params import read_params
 
 
@@ -17,23 +17,23 @@ class db_operation_train:
 
         self.class_name = self.__class__.__name__
 
-        self.train_data_bucket = self.config["s3_bucket"]["phising_train_data_bucket"]
+        self.train_data_bucket = self.config["blob_bucket"]["phising_train_data_bucket"]
 
         self.train_export_csv_file = self.config["export_csv_file"]["train"]
 
         self.good_data_train_dir = self.config["data"]["train"]["good_data_dir"]
 
-        self.input_files_bucket = self.config["s3_bucket"]["input_files_bucket"]
+        self.input_files_bucket = self.config["blob_bucket"]["input_files_bucket"]
 
         self.train_db_insert_log = self.config["train_db_log"]["db_insert"]
 
         self.train_export_csv_log = self.config["train_db_log"]["export_csv"]
 
-        self.s3 = s3_operations()
+        self.blob = Blob_Operation()
 
         self.db_op = mongodb_operation()
 
-        self.log_writer = app_logger()
+        self.log_writer = App_Logger()
 
     def insert_good_data_as_record(self, good_data_db_name, good_data_collection_name):
         """
@@ -53,7 +53,7 @@ class db_operation_train:
         )
 
         try:
-            lst = self.s3.read_csv(
+            lst = self.blob.read_csv(
                 bucket=self.train_data_bucket,
                 file_name=self.good_data_train_dir,
                 folder=True,
@@ -120,7 +120,7 @@ class db_operation_train:
                 table_name=self.train_export_csv_log,
             )
 
-            self.s3.upload_df_as_csv(
+            self.blob.upload_df_as_csv(
                 data_frame=df,
                 file_name=self.train_export_csv_file,
                 bucket=self.input_files_bucket,
