@@ -1,5 +1,5 @@
 from phising.mongo_db_operations.mongo_operations import mongodb_operation
-from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from phising.container_operations.Blob_Operation import Blob_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
@@ -17,13 +17,15 @@ class db_operation_train:
 
         self.class_name = self.__class__.__name__
 
-        self.train_data_bucket = self.config["blob_bucket"]["phising_train_data_bucket"]
+        self.train_data_container = self.config["container"][
+            "phising_train_data_container"
+        ]
 
         self.train_export_csv_file = self.config["export_csv_file"]["train"]
 
         self.good_data_train_dir = self.config["data"]["train"]["good_data_dir"]
 
-        self.input_files_bucket = self.config["blob_bucket"]["input_files_bucket"]
+        self.input_files_container = self.config["container"]["input_files_container"]
 
         self.train_db_insert_log = self.config["train_db_log"]["db_insert"]
 
@@ -49,15 +51,15 @@ class db_operation_train:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.train_db_insert_log,
+            collection_name=self.train_db_insert_log,
         )
 
         try:
             lst = self.blob.read_csv(
-                bucket=self.train_data_bucket,
+                container=self.train_data_container,
                 file_name=self.good_data_train_dir,
                 folder=True,
-                table_name=self.train_db_insert_log,
+                collection_name=self.train_db_insert_log,
             )
 
             for idx, f in enumerate(lst):
@@ -70,14 +72,14 @@ class db_operation_train:
                         data_frame=df,
                         db_name=good_data_db_name,
                         collection_name=good_data_collection_name,
-                        table_name=self.train_db_insert_log,
+                        collection_name=self.train_db_insert_log,
                     )
 
                 else:
                     pass
 
                 self.log_writer.log(
-                    table_name=self.train_db_insert_log,
+                    collection_name=self.train_db_insert_log,
                     log_info="Inserted dataframe as collection record in mongodb",
                 )
 
@@ -85,7 +87,7 @@ class db_operation_train:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.train_db_insert_log,
+                collection_name=self.train_db_insert_log,
             )
 
         except Exception as e:
@@ -93,7 +95,7 @@ class db_operation_train:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.train_db_insert_log,
+                collection_name=self.train_db_insert_log,
             )
 
     def export_collection_to_csv(self, good_data_db_name, good_data_collection_name):
@@ -110,29 +112,29 @@ class db_operation_train:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.train_export_csv_log,
+            collection_name=self.train_export_csv_log,
         )
 
         try:
             df = self.db_op.get_collection_as_dataframe(
                 db_name=good_data_db_name,
                 collection_name=good_data_collection_name,
-                table_name=self.train_export_csv_log,
+                collection_name=self.train_export_csv_log,
             )
 
             self.blob.upload_df_as_csv(
                 data_frame=df,
                 file_name=self.train_export_csv_file,
-                bucket=self.input_files_bucket,
+                container=self.input_files_container,
                 dest_file_name=self.train_export_csv_file,
-                table_name=self.train_export_csv_log,
+                collection_name=self.train_export_csv_log,
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.train_export_csv_log,
+                collection_name=self.train_export_csv_log,
             )
 
         except Exception as e:
@@ -140,5 +142,5 @@ class db_operation_train:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.train_export_csv_log,
+                collection_name=self.train_export_csv_log,
             )

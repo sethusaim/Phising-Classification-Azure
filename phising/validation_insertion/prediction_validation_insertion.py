@@ -13,8 +13,8 @@ class pred_validation:
     Revisions   :   moved to setup to cloud
     """
 
-    def __init__(self, bucket_name):
-        self.raw_data = raw_pred_data_validation(raw_data_bucket_name=bucket_name)
+    def __init__(self, container_name):
+        self.raw_data = raw_pred_data_validation(raw_data_container_name=container_name)
 
         self.data_transform = data_transform_pred()
 
@@ -51,7 +51,7 @@ class pred_validation:
                 key="start",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
             )
 
             (
@@ -72,12 +72,12 @@ class pred_validation:
             self.raw_data.validate_missing_values_in_col()
 
             self.log_writer.log(
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
                 log_info="Raw Data Validation Completed !!",
             )
 
             self.log_writer.log(
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
                 log_info="Starting Data Transformation",
             )
 
@@ -86,7 +86,7 @@ class pred_validation:
             self.data_transform.replace_missing_with_null()
 
             self.log_writer.log(
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
                 log_info="Data Transformation completed !!",
             )
 
@@ -96,7 +96,7 @@ class pred_validation:
             )
 
             self.log_writer.log(
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
                 log_info="Data type validation Operation completed !!",
             )
 
@@ -109,7 +109,7 @@ class pred_validation:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
             )
 
         except Exception as e:
@@ -117,5 +117,5 @@ class pred_validation:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.pred_main_log,
+                collection_name=self.pred_main_log,
             )

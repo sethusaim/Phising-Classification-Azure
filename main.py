@@ -45,13 +45,15 @@ async def index(request: Request):
 @app.get("/train")
 async def trainRouteClient():
     try:
-        raw_data_train_bucket_name = config["blob_bucket"]["phising_raw_data_bucket"]
+        raw_data_train_container_name = config["container"][
+            "phising_raw_data_container"
+        ]
 
         table_obj = create_log_table()
 
         table_obj.generate_log_tables(type="train")
 
-        train_val_obj = train_validation(bucket_name=raw_data_train_bucket_name)
+        train_val_obj = train_validation(container_name=raw_data_train_container_name)
 
         train_val_obj.training_validation()
 
@@ -72,22 +74,22 @@ async def trainRouteClient():
 @app.get("/predict")
 async def predictRouteClient():
     try:
-        raw_data_pred_bucket_name = config["blob_bucket"]["phising_raw_data_bucket"]
+        raw_data_pred_container_name = config["container"]["phising_raw_data_container"]
 
         table_obj = create_log_table()
 
         table_obj.generate_log_tables(type="pred")
 
-        pred_val = pred_validation(raw_data_pred_bucket_name)
+        pred_val = pred_validation(raw_data_pred_container_name)
 
         pred_val.prediction_validation()
 
         pred = prediction()
 
-        bucket, filename, json_predictions = pred.predict_from_model()
+        container, filename, json_predictions = pred.predict_from_model()
 
         return Response(
-            f"prediction file created in {bucket} bucket with filename as {filename}, and few of the predictions are {str(json.loads(json_predictions))}"
+            f"prediction file created in {container} container with filename as {filename}, and few of the predictions are {str(json.loads(json_predictions))}"
         )
 
     except Exception as e:

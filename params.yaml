@@ -38,13 +38,13 @@ kmeans_cluster:
     curve     : convex
     direction : decreasing
 
-blob_bucket:
-  input_files_bucket: input-files-for-train-and-pred
-  phising_model_bucket: phising-model
-  phising-mlflow_bucket: phising-mlflow
-  phising_pred_data_bucket: phising-pred-data
-  phising_train_data_bucket: phising-train-data
-  phising_raw_data_bucket: phising-raw-data
+container:
+  input_files_container: input-files-for-train-and-pred
+  phising_model_container: phising-model
+  phising-mlflow_container: phising-mlflow
+  phising_pred_data_container: phising-pred-data
+  phising_train_data_container: phising-train-data
+  phising_raw_data_container: phising-raw-data
 
 models_dir:
   trained : trained/

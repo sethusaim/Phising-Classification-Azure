@@ -2,7 +2,7 @@ import pandas as pd
 from botocore.exceptions import ClientError
 from phising.data_ingestion.data_loader_prediction import data_getter_pred
 from phising.data_preprocessing.preprocessing import preprocessor
-from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from phising.container_operations.Blob_Operation import Blob_Operation
 from utils.logger import App_Logger
 from utils.read_params import read_params
 
@@ -20,9 +20,9 @@ class prediction:
 
         self.pred_log = self.config["pred_db_log"]["pred_main"]
 
-        self.model_bucket = self.config["blob_bucket"]["phising_model_bucket"]
+        self.model_container = self.config["container"]["phising_model_container"]
 
-        self.input_files_bucket = self.config["blob_bucket"]["inputs_files_bucket"]
+        self.input_files_container = self.config["container"]["inputs_files_container"]
 
         self.prod_model_dir = self.config["models_dir"]["prod"]
 
@@ -32,13 +32,13 @@ class prediction:
 
         self.blob = Blob_Operation()
 
-        self.data_getter_pred = data_getter_pred(table_name=self.pred_log)
+        self.data_getter_pred = data_getter_pred(collection_name=self.pred_log)
 
-        self.preprocessor = preprocessor(table_name=self.pred_log)
+        self.preprocessor = preprocessor(collection_name=self.pred_log)
 
         self.class_name = self.__class__.__name__
 
-    def delete_pred_file(self, table_name):
+    def delete_pred_file(self, collection_name):
         """
         Method Name :   delete_pred_file
         Description :   This method is used for deleting the existing prediction batch file
@@ -52,30 +52,30 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=table_name,
+            collection_name=collection_name,
         )
 
         try:
             self.blob.load_object(
-                bucket_name=self.input_files_bucket, obj=self.pred_output_file
+                container_name=self.input_files_container, obj=self.pred_output_file
             )
 
             self.log_writer.log(
-                table_name=table_name,
+                collection_name=collection_name,
                 log_info=f"Found existing prediction batch file. Deleting it.",
             )
 
             self.blob.delete_file(
-                bucket_name=self.input_files_bucket,
+                container_name=self.input_files_container,
                 file=self.pred_output_file,
-                table_name=table_name,
+                collection_name=collection_name,
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=table_name,
+                collection_name=collection_name,
             )
 
         except ClientError as e:
@@ -87,10 +87,10 @@ class prediction:
                     error=e,
                     class_name=self.class_name,
                     method_name=method_name,
-                    table_name=table_name,
+                    collection_name=collection_name,
                 )
 
-    def find_correct_model_file(self, cluster_number, bucket_name, table_name):
+    def find_correct_model_file(self, cluster_number, container_name, collection_name):
         """
         Method Name :   find_correct_model_file
         Description :   This method is used for finding the correct model file during prediction
@@ -104,14 +104,14 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=table_name,
+            collection_name=collection_name,
         )
 
         try:
             list_of_files = self.blob.get_files(
-                bucket=bucket_name,
+                container=container_name,
                 folder_name=self.prod_model_dir,
-                table_name=table_name,
+                collection_name=collection_name,
             )
 
             for file in list_of_files:
@@ -125,15 +125,15 @@ class prediction:
             model_name = model_name.split(".")[0]
 
             self.log_writer.log(
-                table_name=table_name,
-                log_info=f"Got {model_name} from {self.prod_model_dir} folder in {bucket_name} bucket",
+                collection_name=collection_name,
+                log_info=f"Got {model_name} from {self.prod_model_dir} folder in {container_name} container",
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=table_name,
+                collection_name=collection_name,
             )
 
             return model_name
@@ -143,13 +143,13 @@ class prediction:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=table_name,
+                collection_name=collection_name,
             )
 
     def predict_from_model(self):
         """
         Method Name :   predict_from_model
-        Description :   This method is used for loading from prod model dir of blob bucket and use them for prediction
+        Description :   This method is used for loading from prod model dir of blob container and use them for prediction
 
         Version     :   1.2
         Revisions   :   moved setup to cloud
@@ -160,11 +160,11 @@ class prediction:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.pred_log,
+            collection_name=self.pred_log,
         )
 
         try:
-            self.delete_pred_file(table_name=self.pred_log)
+            self.delete_pred_file(collection_name=self.pred_log)
 
             data = self.data_getter_pred.get_data()
 
@@ -178,7 +178,9 @@ class prediction:
             data = self.preprocessor.remove_columns(data, cols_to_drop)
 
             kmeans = self.blob.load_model(
-                bucket=self.model_bucket, model_name="KMeans", table_name=self.pred_log
+                container=self.model_container,
+                model_name="KMeans",
+                collection_name=self.pred_log,
             )
 
             clusters = kmeans.predict(data.drop(["phising"], axis=1))
@@ -198,8 +200,8 @@ class prediction:
 
                 crt_model_name = self.find_correct_model_file(
                     cluster_number=i,
-                    bucket_name=self.model_bucket,
-                    table_name=self.pred_log,
+                    container_name=self.model_container,
+                    collection_name=self.pred_log,
                 )
 
                 model = self.blob.load_model(model_name=crt_model_name)
@@ -213,15 +215,15 @@ class prediction:
                 self.blob.upload_df_as_csv(
                     data_frame=result,
                     file_name=self.pred_output_file,
-                    bucket=self.input_files_bucket,
+                    container=self.input_files_container,
                     dest_file_name=self.pred_output_file,
-                    table_name=self.pred_log,
+                    collection_name=self.pred_log,
                 )
 
-            self.log_writer.log(table_name=self.pred_log, log_info=f"End of Prediction")
+            self.log_writer.log(collection_name=self.pred_log, log_info=f"End of Prediction")
 
             return (
-                self.input_files_bucket,
+                self.input_files_container,
                 self.pred_output_file,
                 result.head().to_json(orient="records"),
             )
@@ -231,5 +233,5 @@ class prediction:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.pred_log,
+                collection_name=self.pred_log,
             )

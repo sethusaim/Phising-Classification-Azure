@@ -2,7 +2,7 @@ import os
 
 import mlflow
 from mlflow.tracking import MlflowClient
-from phising.blob_bucket_operations.Blob_Operation import Blob_Operation
+from phising.container_operations.Blob_Operation import Blob_Operation
 from utils.logger import App_Logger
 from utils.model_utils import get_model_name
 from utils.read_params import read_params
@@ -16,7 +16,7 @@ class mlflow_operations:
     Revisions   :    moved to setup to cloud
     """
 
-    def __init__(self, table_name):
+    def __init__(self, collection_name):
         self.config = read_params()
 
         self.class_name = self.__class__.__name__
@@ -25,7 +25,7 @@ class mlflow_operations:
 
         self.blob = Blob_Operation()
 
-        self.table_name = table_name
+        self.collection_name = collection_name
 
         self.mlflow_save_format = self.config["mlflow_config"]["serialization_format"]
 
@@ -51,14 +51,14 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             exp = mlflow.get_experiment_by_name(name=exp_name)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Got {exp_name} experiment from mlflow",
             )
 
@@ -66,7 +66,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return exp
@@ -76,7 +76,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_runs_from_mlflow(self, exp_id):
@@ -93,14 +93,14 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             runs = mlflow.search_runs(experiment_ids=exp_id)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Completed searchiing for runs in mlflow with experiment ids as {exp_id}",
             )
 
@@ -108,7 +108,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return runs
@@ -118,7 +118,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def set_mlflow_experiment(self, experiment_name):
@@ -135,14 +135,14 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             mlflow.set_experiment(experiment_name=experiment_name)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Set mlflow experiment with name as {experiment_name}",
             )
 
@@ -150,7 +150,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -158,7 +158,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_mlflow_client(self, server_uri):
@@ -175,14 +175,14 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             client = MlflowClient(tracking_uri=server_uri)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Got mlflow client with tracking uri",
             )
 
@@ -190,7 +190,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return client
@@ -200,7 +200,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_remote_server_uri(self):
@@ -217,21 +217,21 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             remote_server_uri = os.environ["MLFLOW_TRACKING_URI"]
 
             self.log_writer.log(
-                table_name=self.table_name, log_info="Got mlflow tracking uri"
+                collection_name=self.collection_name, log_info="Got mlflow tracking uri"
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return remote_server_uri
@@ -241,7 +241,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def set_mlflow_tracking_uri(self):
@@ -258,7 +258,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -267,7 +267,7 @@ class mlflow_operations:
             mlflow.set_tracking_uri(server_uri)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Set mlflow tracking uri to {server_uri}",
             )
 
@@ -275,7 +275,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -283,7 +283,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_mlflow_models(self):
@@ -300,7 +300,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -311,7 +311,7 @@ class mlflow_operations:
             reg_model_names = [rm.name for rm in client.list_registered_models()]
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info="Got registered model from mlflow",
             )
 
@@ -319,7 +319,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return reg_model_names
@@ -329,7 +329,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def search_mlflow_models(self, order):
@@ -346,7 +346,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -357,7 +357,7 @@ class mlflow_operations:
             results = client.search_registered_models(order_by=[f"name {order}"])
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Got registered models in mlflow in {order} order",
             )
 
@@ -365,7 +365,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return results
@@ -375,7 +375,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def log_model(self, model, model_name):
@@ -392,7 +392,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -404,14 +404,14 @@ class mlflow_operations:
             )
 
             self.log_writer.log(
-                table_name=self.table_name, log_info=f"Logged {model_name} in mlflow"
+                collection_name=self.collection_name, log_info=f"Logged {model_name} in mlflow"
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -419,7 +419,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def log_metric(self, model_name, metric):
@@ -436,7 +436,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -445,7 +445,7 @@ class mlflow_operations:
             mlflow.log_metric(key=model_score_name, value=metric)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"{model_score_name} logged in mlflow",
             )
 
@@ -453,7 +453,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -461,7 +461,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def log_param(self, idx, model, model_name, param):
@@ -478,7 +478,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -487,7 +487,7 @@ class mlflow_operations:
             mlflow.log_param(key=model_param_name, value=model.__dict__[param])
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"{model_param_name} logged in mlflow",
             )
 
@@ -495,7 +495,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -503,7 +503,7 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def log_all_for_model(self, idx, model, model_param_name, model_score):
@@ -521,10 +521,10 @@ class mlflow_operations:
                 key="start",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
-            base_model_name = get_model_name(model=model, table_name=self.table_name)
+            base_model_name = get_model_name(model=model, collection_name=self.collection_name)
 
             if base_model_name is "KMeans":
                 self.log_model(model=model, model_name=base_model_name)
@@ -533,7 +533,7 @@ class mlflow_operations:
                 model_name = base_model_name + str(idx)
 
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"Got the model name as {model_name}",
                 )
 
@@ -542,7 +542,7 @@ class mlflow_operations:
                 )
 
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"Created a list of params based on {model_param_name}",
                 )
 
@@ -562,7 +562,7 @@ class mlflow_operations:
                     key="exit",
                     class_name=self.class_name,
                     method_name=method_name,
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                 )
 
         except Exception as e:
@@ -570,13 +570,13 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
-    def transition_mlflow_model(self, model_version, stage, model_name, bucket):
+    def transition_mlflow_model(self, model_version, stage, model_name, container):
         """
         Method Name :   transition_mlflow_model
-        Description :   This method transitions the models in mlflow and as well as in blob bucket based on
+        Description :   This method transitions the models in mlflow and as well as in blob container based on
                         the best model for the particular cluster
 
         Version     :   1.2
@@ -588,7 +588,7 @@ class mlflow_operations:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -597,7 +597,7 @@ class mlflow_operations:
             current_version = model_version
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Got {current_version} as the current model version",
             )
 
@@ -612,13 +612,13 @@ class mlflow_operations:
             prod_model_file = self.prod_models_dir + "/" + model
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info="Created trained,stag and prod model files",
             )
 
             if stage == "Production":
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"{stage} is selected for transition",
                 )
 
@@ -627,21 +627,21 @@ class mlflow_operations:
                 )
 
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
                 self.blob.copy_data(
-                    src_bucket=bucket,
+                    src_container=container,
                     src_file=trained_model_file,
-                    dest_bucket=bucket,
+                    dest_container=container,
                     dest_file=prod_model_file,
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                 )
 
             elif stage == "Staging":
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"{stage} is selected for transition",
                 )
 
@@ -650,21 +650,21 @@ class mlflow_operations:
                 )
 
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info=f"Transitioned {model_name} to {stage} in mlflow",
                 )
 
                 self.blob.copy_data(
-                    src_bucket=bucket,
+                    src_container=container,
                     src_file=trained_model_file,
-                    dest_bucket=bucket,
+                    dest_container=container,
                     dest_file=stag_model_file,
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                 )
 
             else:
                 self.log_writer.log(
-                    table_name=self.table_name,
+                    collection_name=self.collection_name,
                     log_info="Please select stage for model transition",
                 )
 
@@ -672,7 +672,7 @@ class mlflow_operations:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
         except Exception as e:
@@ -680,5 +680,5 @@ class mlflow_operations:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )

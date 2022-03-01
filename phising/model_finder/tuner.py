@@ -13,8 +13,8 @@ class model_finder:
     Revisions: None
     """
 
-    def __init__(self, table_name):
-        self.table_name = table_name
+    def __init__(self, collection_name):
+        self.collection_name = collection_name
 
         self.class_name = self.__class__.__name__
 
@@ -48,12 +48,12 @@ class model_finder:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             self.rf_model_name = get_model_name(
-                model=self.rf_model, table_name=self.table_name
+                model=self.rf_model, collection_name=self.collection_name
             )
 
             self.rf_best_params = get_model_params(
@@ -61,7 +61,7 @@ class model_finder:
                 model_key_name="rf_model",
                 x_train=train_x,
                 y_train=train_y,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             self.criterion = self.rf_best_params["criterion"]
@@ -73,7 +73,7 @@ class model_finder:
             self.n_estimators = self.rf_best_params["n_estimators"]
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"{self.rf_model_name} model best params are {self.rf_best_params}",
             )
 
@@ -85,14 +85,14 @@ class model_finder:
             )
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Initialized {self.rf_model_name} with {self.rf_best_params} as params",
             )
 
             rf_model.fit(train_x, train_y)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Created {self.rf_model_name} based on the {self.rf_best_params} as params",
             )
 
@@ -100,7 +100,7 @@ class model_finder:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return rf_model
@@ -110,7 +110,7 @@ class model_finder:
                 error=e,
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_best_params_for_xgboost(self, train_x, train_y):
@@ -131,12 +131,12 @@ class model_finder:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
             self.xgb_model_name = get_model_name(
-                model=self.xgb_model, table_name=self.table_name
+                model=self.xgb_model, collection_name=self.collection_name
             )
 
             self.xgb_best_params = get_model_params(
@@ -144,7 +144,7 @@ class model_finder:
                 model_key_name="xgb_model",
                 x_train=train_x,
                 y_train=train_y,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             self.learning_rate = self.xgb_best_params["learning_rate"]
@@ -154,7 +154,7 @@ class model_finder:
             self.n_estimators = self.rf_best_params["n_estimators"]
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"{self.rf_model_name} model best params are {self.rf_best_params}",
             )
 
@@ -165,14 +165,14 @@ class model_finder:
             )
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Initialized {self.xgb_model_name} model with best params as {self.xgb_best_params}",
             )
 
             xgb_model.fit(train_x, train_y)
 
             self.log_writer.log(
-                table_name=self.table_name,
+                collection_name=self.collection_name,
                 log_info=f"Created {self.xgb_model_name} model with best params as {self.xgb_best_params}",
             )
 
@@ -180,7 +180,7 @@ class model_finder:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return xgb_model
@@ -190,7 +190,7 @@ class model_finder:
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
     def get_trained_models(self, train_x, train_y, test_x, test_y):
@@ -210,7 +210,7 @@ class model_finder:
             key="start",
             class_name=self.class_name,
             method_name=method_name,
-            table_name=self.table_name,
+            collection_name=self.collection_name,
         )
 
         try:
@@ -220,7 +220,7 @@ class model_finder:
                 model=xgb_model,
                 test_x=test_x,
                 test_y=test_y,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             rf_model = self.get_best_params_for_random_forest(train_x, train_y)
@@ -229,14 +229,14 @@ class model_finder:
                 model=rf_model,
                 test_x=test_x,
                 test_y=test_y,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             self.log_writer.start_log(
                 key="exit",
                 class_name=self.class_name,
                 method_name=method_name,
-                table_name=self.table_name,
+                collection_name=self.collection_name,
             )
 
             return xgb_model, xgb_model_score, rf_model, rf_model_score
