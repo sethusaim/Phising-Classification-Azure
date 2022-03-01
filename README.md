@@ -1,1 +1,1 @@
-# Phising-Classification-Azure
+# project-template
