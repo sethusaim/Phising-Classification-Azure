@@ -1,6 +1,5 @@
 import json
 import os
-import time
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -13,7 +12,7 @@ from phising.model.prediction_from_model import prediction
 from phising.model.training_model import train_model
 from phising.validation_insertion.prediction_validation_insertion import pred_validation
 from phising.validation_insertion.train_validation_insertion import train_validation
-from utils.log_tables import create_log_table
+from utils.create_containers import create_log_table
 from utils.read_params import read_params
 
 os.putenv("LANG", "en_US.UTF-8")
