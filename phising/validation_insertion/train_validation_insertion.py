@@ -7,7 +7,7 @@ from utils.read_params import read_params
 
 class Train_Validation:
     """
-    Description :   This class is used for validating all the trainiction batch files
+    Description :   This class is used for validating all the training batch files
 
     Version     :   1.2
     Revisions   :   moved to setup to cloud
@@ -36,15 +36,15 @@ class Train_Validation:
 
         self.log_writer = App_Logger()
 
-    def trainiction_validation(self):
+    def training_validation(self):
         """
         Method Name :   load_blob
-        Description :   This method is used for validating the trainiction btach files
+        Description :   This method is used for validating the training btach files
 
         Version     :   1.2
         Revisions   :   moved setup to cloud
         """
-        method_name = self.trainiction_validation.__name__
+        method_name = self.training_validation.__name__
 
         try:
             self.log_writer.start_log(
