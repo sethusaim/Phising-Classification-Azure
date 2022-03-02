@@ -52,7 +52,7 @@ async def create_container():
         return Response("Created Azure containers !!")
 
     except Exception as e:
-        return Response(f"Error Occurred! {e}")
+        return Response(f"Error Occurred : {e}")
 
 
 @app.get("/train")
@@ -60,20 +60,20 @@ async def trainRouteClient():
     try:
         raw_data_train_container_name = config["container"]["phising_raw_data"]
 
-        train_val_obj = Train_Validation(container_name=raw_data_train_container_name)
+        train_val = Train_Validation(container_name=raw_data_train_container_name)
 
-        train_val_obj.training_validation()
+        train_val.training_validation()
 
-        train_model_obj = Train_Model()
+        train_model = Train_Model()
 
-        num_clusters = train_model_obj.training_model()
+        num_clusters = train_model.training_model()
 
-        load_prod_model_obj = Load_Prod_Model(num_clusters=num_clusters)
+        load_prod_model = Load_Prod_Model(num_clusters=num_clusters)
 
-        load_prod_model_obj.load_production_model()
+        load_prod_model.load_production_model()
 
     except Exception as e:
-        return Response(f"Error Occurred! {e}")
+        return Response(f"Error Occurred : {e}")
 
     return Response("Training successfull!!")
 
@@ -81,7 +81,7 @@ async def trainRouteClient():
 @app.get("/predict")
 async def predictRouteClient():
     try:
-        raw_data_pred_container_name = config["container"]["phising_raw_data_container"]
+        raw_data_pred_container_name = config["container"]["phising_raw_data"]
 
         pred_val = Pred_Validation(raw_data_pred_container_name)
 
@@ -96,7 +96,7 @@ async def predictRouteClient():
         )
 
     except Exception as e:
-        return Response(f"Error Occurred! {e}")
+        return Response(f"Error Occurred : {e}")
 
 
 if __name__ == "__main__":
