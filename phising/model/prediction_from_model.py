@@ -21,9 +21,9 @@ class Prediction:
 
         self.pred_log = self.config["pred_db_log"]["pred_main"]
 
-        self.model_container = self.config["container"]["phising_model_container"]
+        self.model_container = self.config["container"]["phising_model"]
 
-        self.input_files_container = self.config["container"]["inputs_files_container"]
+        self.input_files_container = self.config["container"]["inputs_files"]
 
         self.prod_model_dir = self.config["models_dir"]["prod"]
 

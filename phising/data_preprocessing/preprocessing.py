@@ -227,14 +227,14 @@ class Preprocessor:
             self.log_writer.log(
                 db_name=self.db_name,
                 collection_name=self.collection_name,
-                log_info="created cols with missing values",
+                log_info="Created cols with missing values",
             )
 
             if null_present:
                 self.log_writer.log(
                     db_name=self.db_name,
                     collection_name=self.collection_name,
-                    log_info="null values were found the columns...preparing dataframe with null values",
+                    log_info="Null values were found the columns...preparing dataframe with null values",
                 )
 
                 self.dataframe_with_null = pd.DataFrame()

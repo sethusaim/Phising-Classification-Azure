@@ -53,12 +53,12 @@ class Data_Transform_Pred:
                 collection_name=self.pred_data_transform_log,
             )
 
-            for idx, f in enumerate(lst):
-                df = f[idx][0]
+            for f in lst:
+                df = f[0]
 
-                file = f[idx][1]
+                file = f[1]
 
-                abs_f = f[idx][2]
+                abs_f = f[2]
 
                 if file.endswith(".csv"):
                     for column in df.columns:

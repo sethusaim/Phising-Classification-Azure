@@ -46,17 +46,25 @@ class Train_Model:
 
         self.class_name = self.__class__.__name__
 
-        self.mlflow_op = MLFlow_Operations(collection_name=self.model_train_log)
-
-        self.data_getter_train_obj = Data_Getter_Train(
-            collection_name=self.model_train_log
+        self.mlflow_op = MLFlow_Operations(
+            db_name=self.db_name, collection_name=self.model_train_log
         )
 
-        self.preprocessor_obj = Preprocessor(collection_name=self.model_train_log)
+        self.data_getter_train_obj = Data_Getter_Train(
+            db_name=self.db_name, collection_name=self.model_train_log
+        )
 
-        self.kmeans_obj = KMeans_Clustering(collection_name=self.model_train_log)
+        self.preprocessor_obj = Preprocessor(
+            db_name=self.db_name, collection_name=self.model_train_log
+        )
 
-        self.model_finder_obj = Model_Finder(collection_name=self.model_train_log)
+        self.kmeans_obj = KMeans_Clustering(
+            db_name=self.db_name, collection_name=self.model_train_log
+        )
+
+        self.model_finder_obj = Model_Finder(
+            db_name=self.db_name, collection_name=self.model_train_log
+        )
 
         self.blob = Blob_Operation()
 

@@ -38,9 +38,8 @@ app.add_middleware(
 @app.get("/")
 async def index(request: Request):
     return templates.TemplateResponse(
-        config["templates"]["index_html_file"], {"request": request}
+        config["templates"]["index"], {"request": request}
     )
-
 
 @app.get("/create")
 async def create_container():
@@ -49,8 +48,10 @@ async def create_container():
 
         container.generate_containers()
 
+        return Response("Created Azure containers !!")
+
     except Exception as e:
-        raise e
+        return Response("Error Occurred! %s" % e)
 
 
 @app.get("/train")

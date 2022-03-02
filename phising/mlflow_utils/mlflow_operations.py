@@ -245,6 +245,7 @@ class MLFlow_Operations:
             remote_server_uri = os.environ["MLFLOW_TRACKING_URI"]
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.collection_name,
                 log_info="Got mlflow tracking uri",
             )
@@ -292,6 +293,7 @@ class MLFlow_Operations:
             mlflow.set_tracking_uri(server_uri)
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.collection_name,
                 log_info="Set mlflow tracking uri",
             )
@@ -339,6 +341,7 @@ class MLFlow_Operations:
             reg_model_names = [rm.name for rm in client.list_registered_models()]
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.collection_name,
                 log_info="Got registered model from mlflow",
             )
@@ -439,6 +442,7 @@ class MLFlow_Operations:
             )
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.collection_name,
                 log_info=f"Logged {model_name} model in mlflow",
             )
@@ -484,6 +488,7 @@ class MLFlow_Operations:
             mlflow.log_metric(key=model_score_name, value=metric)
 
             self.log_writer.log(
+                db_name=self.db_name,
                 collection_name=self.collection_name,
                 log_info=f"{model_score_name} logged in mlflow",
             )
@@ -580,6 +585,7 @@ class MLFlow_Operations:
                 model_name = base_model_name + str(idx)
 
                 self.log_writer.log(
+                    db_name=self.db_name,
                     collection_name=self.collection_name,
                     log_info=f"Got the model name as {model_name}",
                 )

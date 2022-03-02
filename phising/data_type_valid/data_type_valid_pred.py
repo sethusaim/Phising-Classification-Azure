@@ -63,10 +63,10 @@ class DB_Operation_Pred:
                 collection_name=self.pred_db_insert_log,
             )
 
-            for idx, f in enumerate(lst):
-                df = f[idx][0]
+            for f in lst:
+                df = f[0]
 
-                file = f[idx][1]
+                file = f[1]
 
                 if file.endswith(".csv"):
                     self.db_op.insert_dataframe_as_record(

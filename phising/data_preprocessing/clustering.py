@@ -36,7 +36,7 @@ class KMeans_Clustering:
 
         self.blob = Blob_Operation()
 
-        self.elbow_plot_file = self.config["elbow_plot_fig"]
+        self.elbow_plot_file = self.config["elbow_plot"]
 
         self.trained_model_dir = self.config["model_dir"]["trained"]
 
