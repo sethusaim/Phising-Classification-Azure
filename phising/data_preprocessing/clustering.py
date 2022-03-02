@@ -22,7 +22,7 @@ class KMeans_Clustering:
 
         self.input_files_container = self.config["container"]["input_files"]
 
-        self.model_container = self.config["container"]["wafer_model_container"]
+        self.model_container = self.config["container"]["phising_model_container"]
 
         self.random_state = self.config["base"]["random_state"]
 

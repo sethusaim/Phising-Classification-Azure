@@ -121,7 +121,8 @@ class DB_Operation_Pred:
 
         try:
             df = self.db_op.get_collection_as_dataframe(
-                db_name=good_data_db_name, collection_name=good_data_collection_name,
+                db_name=good_data_db_name,
+                collection_name=good_data_collection_name,
             )
 
             self.blob.upload_df_as_csv(

@@ -186,14 +186,12 @@ class Prediction:
 
             data = self.data_getter_pred.get_data()
 
+            data = self.preprocessor.replace_invalid_values(data)
+
             is_null_present = self.preprocessor.is_null_present(data)
 
             if is_null_present:
                 data = self.preprocessor.impute_missing_values(data)
-
-            cols_to_drop = self.preprocessor.get_columns_with_zero_std_deviation(data)
-
-            data = self.preprocessor.remove_columns(data, cols_to_drop)
 
             kmeans = self.blob.load_model(
                 model_name="KMeans",
@@ -219,7 +217,8 @@ class Prediction:
                 cluster_data = cluster_data.drop(["clusters"], axis=1)
 
                 crt_model_name = self.find_correct_model_file(
-                    cluster_number=i, container_name=self.model_container,
+                    cluster_number=i,
+                    container_name=self.model_container,
                 )
 
                 model = self.blob.load_model(

@@ -50,15 +50,15 @@ class Train_Model:
             db_name=self.db_name, collection_name=self.model_train_log
         )
 
-        self.data_getter_train_obj = Data_Getter_Train(
+        self.data_getter_train = Data_Getter_Train(
             db_name=self.db_name, collection_name=self.model_train_log
         )
 
-        self.preprocessor_obj = Preprocessor(
+        self.preprocessor = Preprocessor(
             db_name=self.db_name, collection_name=self.model_train_log
         )
 
-        self.kmeans_obj = KMeans_Clustering(
+        self.kmeans_op = KMeans_Clustering(
             db_name=self.db_name, collection_name=self.model_train_log
         )
 
@@ -88,26 +88,22 @@ class Train_Model:
         )
 
         try:
-            data = self.data_getter_train_obj.get_data()
+            data = self.data_getter_train.get_data()
 
-            data = self.preprocessor_obj.remove_columns(data, ["phising"])
+            data = self.preprocessor.replace_invalid_values(data)
 
-            X, Y = self.preprocessor_obj.separate_label_feature(
+            is_null_present = self.preprocessor.is_null_present(X)
+
+            if is_null_present:
+                X = self.preprocessor.impute_missing_values(X)
+
+            X, Y = self.preprocessor.separate_label_feature(
                 data, label_column_name=self.target_col
             )
 
-            is_null_present = self.preprocessor_obj.is_null_present(X)
+            number_of_clusters = self.kmeans_op.elbow_plot(X)
 
-            if is_null_present:
-                X = self.preprocessor_obj.impute_missing_values(X)
-
-            cols_to_drop = self.preprocessor_obj.get_columns_with_zero_std_deviation(X)
-
-            X = self.preprocessor_obj.remove_columns(X, cols_to_drop)
-
-            number_of_clusters = self.kmeans_obj.elbow_plot(X)
-
-            X, kmeans_model = self.kmeans_obj.create_clusters(
+            X, kmeans_model = self.kmeans_op.create_clusters(
                 data=X, number_of_clusters=number_of_clusters
             )
 
