@@ -41,6 +41,7 @@ async def index(request: Request):
         config["templates"]["index"], {"request": request}
     )
 
+
 @app.get("/create")
 async def create_container():
     try:
@@ -51,7 +52,7 @@ async def create_container():
         return Response("Created Azure containers !!")
 
     except Exception as e:
-        return Response("Error Occurred! %s" % e)
+        return Response(f"Error Occurred! {e}")
 
 
 @app.get("/train")
@@ -72,7 +73,7 @@ async def trainRouteClient():
         load_prod_model_obj.load_production_model()
 
     except Exception as e:
-        return Response("Error Occurred! %s" % e)
+        return Response(f"Error Occurred! {e}")
 
     return Response("Training successfull!!")
 
@@ -95,7 +96,7 @@ async def predictRouteClient():
         )
 
     except Exception as e:
-        return Response("Error Occurred! %s" % e)
+        return Response(f"Error Occurred! {e}")
 
 
 if __name__ == "__main__":

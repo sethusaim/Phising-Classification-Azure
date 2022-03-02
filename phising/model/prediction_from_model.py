@@ -219,8 +219,7 @@ class Prediction:
                 cluster_data = cluster_data.drop(["clusters"], axis=1)
 
                 crt_model_name = self.find_correct_model_file(
-                    cluster_number=i,
-                    container_name=self.model_container,
+                    cluster_number=i, container_name=self.model_container,
                 )
 
                 model = self.blob.load_model(

@@ -101,8 +101,7 @@ class Blob_Operation:
 
         try:
             client = ContainerClient.from_connection_string(
-                conn_str=self.connection_string,
-                container_name=container_name,
+                conn_str=self.connection_string, container_name=container_name,
             )
 
             self.log_writer.log(
@@ -1056,7 +1055,7 @@ class Blob_Operation:
 
             self.upload_file(
                 local_file_name=model_file,
-                container_file_name=model_file,
+                container_file_name=container_model_file,
                 container_name=container_name,
                 db_name=db_name,
                 collection_name=collection_name,
