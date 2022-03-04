@@ -1,7 +1,7 @@
 # Phising Classification Azure System
 
 This is an end to end machine learning system for predicting whether a website is a phising website on the basis of given set of predictors.
-This entire solution is built using Azure Services like S3 bucket (for storing the data), DynamoDB (for logging and improvising the system performance), Elastic Container Registry (for storing the container images), and Elastic Container Service (for running the container image). Apart from Azure services, MLFlow was used for experiment tracking and model versioning and model staging with artifacts stored in S3 bucket. Docker for containerization of application. 
+This entire solution is built using Azure Services like Azure Blob Storage (for storing the data), Azure CosmoDB MongoDB API (for logging and improvising the system performance), Azure Container Registry (for storing the container images), and Azure Container Instances (for running the container image). Apart from Azure services, MLFlow was used for experiment tracking and model versioning and model staging with artifacts stored in Azure Blob Storage. Docker for containerization of application. 
 
 ### Problem Statement 
 To build a classification methodology to predict whether a website is a phising website on the basis of given set of predictors. 
